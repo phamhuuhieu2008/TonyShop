@@ -1,49 +1,96 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Trang Minh Họa Tải Nặng Gấp 200</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: #000;
-        }
-        .heavy-animation {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);
-            position: absolute;
-            animation: move 0.08s infinite;
-            will-change: transform, scale, rotate;
-        }
-        @keyframes move {
-            0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
-            50%  { transform: translate(50vw, 50vh) scale(1.5) rotate(180deg); }
-            100% { transform: translate(100vw, 100vh) scale(1) rotate(360deg); }
-        }
-        .large-image {
-            width: 100%;
-            height: auto;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hiệu ứng Lag — 2000 vòng tròn</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .circle {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      /* SỬA: gradient hợp lệ */
+      background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(0,0,255,0.5));
+      filter: blur(4px); /* giảm blur 1 chút cho đỡ nặng */
+      will-change: transform;
+      /* tách các thuộc tính animation cho rõ ràng */
+      animation-name: move;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      pointer-events: none;
+    }
+
+    @keyframes move {
+      0% {
+        transform: translate3d(0,0,0) rotate(0deg);
+      }
+      100% {
+        transform: translate3d(calc(100vw * var(--rx)), calc(100vh * var(--ry)), 0) rotate(360deg);
+      }
+    }
+
+    .circle:nth-child(odd) {
+      /* SỬA: gradient hợp lệ cho các phần tử lẻ */
+      background: radial-gradient(circle, rgba(255,0,0,0.9), rgba(0,255,255,0.5));
+      /* animation-duration có thể set ở đây hoặc (như bạn đang làm) override bằng JS */
+    }
+
+    .circle:nth-child(even) {
+      /* style khác nếu cần */
+    }
+
+    #warning {
+      position: fixed;
+      left: 12px;
+      top: 12px;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      font-size: 13px;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+  </style>
 </head>
 <body>
-    <h1 style="color:white; text-align:center;">Trang Minh Họa Nặng Gấp 200</h1>
+  <div id="warning">⚠️ TOTAL = 2000 — trang có thể lag. Đóng tab để dừng.</div>
 
-    <script>
-        // Thêm 200 ảnh nền
-        for (let i = 0; i < 200; i++) {
-            document.write(`<img class="large-image" src="https://tse1.mm.bing.net/th/id/OIP.22N00WUya9C35GejtFJEdQHaED?pid=Api&P=0&h=180" alt="Hình mới">`);
-        }
+  <script>
+    const TOTAL = 2000; // cảnh báo: rất nặng
 
-        // Thêm 1800 animation div
-        for (let j = 0; j < 1800; j++) {
-            document.write(`<div class="heavy-animation" style="animation-delay:${(j * 0.005).toFixed(3)}s;"></div>`);
-        }
-    </script>
+    (function createCircles() {
+      const frag = document.createDocumentFragment();
+
+      for (let i = 0; i < TOTAL; i++) {
+        const circle = document.createElement('div');
+        circle.className = 'circle';
+
+        circle.style.left = (Math.random() * 100) + 'vw';
+        circle.style.top  = (Math.random() * 100) + 'vh';
+
+        circle.style.setProperty('--rx', (Math.random() * 2 - 1).toFixed(4));
+        circle.style.setProperty('--ry', (Math.random() * 2 - 1).toFixed(4));
+
+        // set thời lượng bằng giây (nhìn rõ hơn)
+        const base = (i % 2 === 0) ? 4 : 3; // seconds
+        const jitter = Math.random() * 2; // 0..2 s
+        circle.style.animationDuration = (base + jitter) + 's';
+
+        frag.appendChild(circle);
+      }
+
+      document.body.appendChild(frag);
+    })();
+  </script>
 </body>
 </html>
